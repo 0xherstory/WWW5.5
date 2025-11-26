@@ -32,7 +32,7 @@
 
 6. 最终PR，在 `2025年11月28日24:00` （北京时区）前提交，且各团队自己发起MR请求。
 
-7. [项目参考模块,点我查看详情](https://github.com/0xherstory/womenweb3wave4.5/blob/main/demo-projects-submit-here/00-proj-template/project-intro-includes.md)
+7. [项目参考模块,点我查看详情]([https://github.com/0xherstory/womenweb3wave4.5/blob/main/demo-projects-submit-here/00-proj-template/project-intro-includes.md](https://github.com/0xherstory/womenweb3wave4.5/tree/main/demo-projects-submit-here))
 
 ## [不通过GitHub提交的方法]
 1. 请直接打包并提交： [https://tally.so/r/wQq4ag](https://tally.so/r/wQq4ag)
