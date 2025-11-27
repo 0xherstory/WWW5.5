@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户仪表盘 - TalkToEarn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: var(--dark);
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            box-shadow: var(--shadow);
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .main-card .card-header {
+            background-color: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .main-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .file-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .file-item:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1);
+        }
+        
+        .file-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .file-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+        
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .user-message {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 18px 18px 4px 18px;
+            margin-bottom: 1rem;
+            max-width: 85%;
+            margin-left: auto;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ai-message {
+            background-color: white;
+            color: var(--dark);
+            padding: 0.75rem 1rem;
+            border-radius: 18px 18px 18px 4px;
+            margin-bottom: 1rem;
+            max-width: 85%;
+            margin-right: auto;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4338ca;
+            border-color: #4338ca;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem 1rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .badge {
+            border-radius: 6px;
+            font-weight: 500;
+            padding: 0.35rem 0.65rem;
+        }
+        
+        .knowledge-base-status {
+            background-color: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-link {
+            color: var(--secondary);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .nav-link:hover {
+            background-color: #f1f5f9;
+            color: var(--dark);
+        }
+        
+        .nav-link.active:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .tab-content {
+            padding-top: 1.5rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .action-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-light);
+        }
+        
+        .action-card .icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-comments me-2"></i>
+                TalkToEarn
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">
+                            <i class="fas fa-user-circle me-1"></i>个人资料
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/community">
+                            <i class="fas fa-users me-1"></i>社区
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i>退出
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- 用户信息 -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0">欢迎，{{ user_id }}！</h3>
+                        <p class="text-muted mb-0">继续您的知识分享和对话之旅</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 知识库状态 -->
+        <div class="knowledge-base-status d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-database me-2 text-info"></i>
+                <strong>知识库状态:</strong> 当前共有 <span class="badge bg-info">{{ vector_count }}</span> 个文档块
+            </div>
+            <button class="btn btn-sm btn-outline-info" onclick="reloadVectorStore()">
+                <i class="fas fa-sync-alt me-1"></i>重新加载知识库
+            </button>
+        </div>
+
+        <div class="row">
+            <!-- 左侧内容 -->
+            <div class="col-lg-8">
+                <!-- 对话界面 -->
+                <div class="main-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-robot me-2 text-primary"></i>AI对话助手
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="chatContainer" class="chat-container">
+                            <div class="ai-message">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                                        <i class="fas fa-robot text-white" style="font-size: 0.75rem;"></i>
+                                    </div>
+                                    <strong>AI助手</strong>
+                                </div>
+                                您好！我是您的AI助手。您可以问我任何问题，我会基于知识库和我的训练知识为您解答。每次对话消耗 0.000001 coin。
+                                <div class="message-time">刚刚</div>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="text" id="questionInput" class="form-control" 
+                                   placeholder="输入您的问题..." autocomplete="off">
+                            <button class="btn btn-primary" onclick="askQuestion()">
+                                <i class="fas fa-paper-plane"></i> 发送
+                            </button>
+                        </div>
+                        
+                        <div class="mt-2 text-muted small">
+                            <i class="fas fa-lightbulb me-1 text-warning"></i>
+                            提示：问题越具体，越容易从知识库中找到相关信息
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速操作 -->
+                <div class="quick-actions">
+                    <a href="/community" class="action-card text-decoration-none">
+                        <div class="icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h5 class="mb-1">浏览社区</h5>
+                        <p class="text-muted small mb-0">查看其他用户分享的内容</p>
+                    </a>
+                    
+                    <a href="/profile" class="action-card text-decoration-none">
+                        <div class="icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h5 class="mb-1">数据统计</h5>
+                        <p class="text-muted small mb-0">查看您的收益和引用详情</p>
+                    </a>
+                    
+                    <div class="action-card" data-bs-toggle="modal" data-bs-target="#shareModal" style="cursor: pointer;">
+                        <div class="icon">
+                            <i class="fas fa-share-square"></i>
+                        </div>
+                        <h5 class="mb-1">分享文件</h5>
+                        <p class="text-muted small mb-0">上传内容到知识库</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧内容 -->
+            <div class="col-lg-4">
+                <!-- 文件管理 -->
+                <div class="main-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-folder me-2 text-primary"></i>我的文件
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if files %}
+                            <div class="file-list">
+                                {% for file in files %}
+                                <div class="file-item">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0">{{ file.filename }}</h6>
+                                        <span class="badge {% if file.authorize_rag %}bg-success{% else %}bg-secondary{% endif %}">
+                                            {% if file.authorize_rag %}已授权{% else %}未授权{% endif %}
+                                        </span>
+                                    </div>
+                                    <p class="text-muted small mb-2">{{ file.content[:80] }}...</p>
+                                    <div class="file-meta">
+                                        <span>{{ file.upload_time[:10] }}</span>
+                                        <span>
+                                            <i class="fas fa-share-alt me-1"></i>{{ file.reference_count }}
+                                            <i class="fas fa-coins ms-2 me-1"></i>{{ "%.6f"|format(file.total_reward) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-folder-open text-muted mb-3" style="font-size: 3rem;"></i>
+                                <p class="text-muted">暂无文件</p>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#shareModal">
+                                    <i class="fas fa-plus me-1"></i>分享第一个文件
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享文件模态框 -->
+    <div class="modal fade" id="shareModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-share-square me-2 text-primary"></i>分享文件
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="shareForm">
+                        <div class="mb-3">
+                            <label for="filename" class="form-label">文件名</label>
+                            <input type="text" class="form-control" id="filename" required 
+                                   placeholder="输入文件名称...">
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">文件内容</label>
+                            <textarea class="form-control" id="content" rows="5" required 
+                                      placeholder="输入文件内容..."></textarea>
+                        </div>
+                        <div class="mb-3 form-check form-switch">
+                            <input type="checkbox" class="form-check-input" id="authorize_rag" checked>
+                            <label class="form-check-label" for="authorize_rag">
+                                授权AI模型加入知识库
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitShareForm()">
+                        <i class="fas fa-share me-1"></i>分享文件（IPFS上传&铸造NFT）
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 提交分享表单
+        function submitShareForm() {
+            const formData = new FormData();
+            formData.append('filename', document.getElementById('filename').value);
+            formData.append('content', document.getElementById('content').value);
+            formData.append('authorize_rag', document.getElementById('authorize_rag').checked);
+            
+            fetch('/share', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 关闭模态框
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('shareModal'));
+                    modal.hide();
+                    
+                    // 显示成功消息
+                    showAlert('文件分享成功！', 'success');
+                    
+                    // 重置表单
+                    document.getElementById('shareForm').reset();
+                    
+                    // 刷新页面
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showAlert('分享失败: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('分享失败，请重试', 'danger');
+            });
+        }
+
+        // 提问函数
+        function askQuestion() {
+            const question = document.getElementById('questionInput').value.trim();
+            if (!question) return;
+            
+            const chatContainer = document.getElementById('chatContainer');
+            
+            // 禁用输入框和按钮，防止重复提交
+            const inputElement = document.getElementById('questionInput');
+            const buttonElement = inputElement.nextElementSibling;
+            inputElement.disabled = true;
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 发送中';
+            
+            // 添加用户消息
+            const userMessage = document.createElement('div');
+            userMessage.className = 'user-message';
+            userMessage.innerHTML = `
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                        <i class="fas fa-user text-dark" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <strong>您</strong>
+                </div>
+                ${question}
+                <div class="message-time">刚刚</div>
+            `;
+            chatContainer.appendChild(userMessage);
+            
+            // 清空输入框
+            document.getElementById('questionInput').value = '';
+            
+            // 滚动到底部
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // 创建AI消息容器
+            const responseId = 'ai-response-' + Date.now();
+            const aiMessage = document.createElement('div');
+            aiMessage.className = 'ai-message';
+            aiMessage.innerHTML = `
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                        <i class="fas fa-robot text-white" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <strong>AI助手</strong>
+                </div>
+                <div id="${responseId}" style="white-space: pre-wrap; line-height: 1.5;"></div>
+            `;
+            chatContainer.appendChild(aiMessage);
+            
+            // 滚动到底部
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            let accumulatedContent = '';
+            let isComplete = false;
+            
+            fetch(`/ask?q=${encodeURIComponent(question)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder('utf-8');
+                    
+                    function read() {
+                        return reader.read().then(({ done, value }) => {
+                            if (done) {
+                                if (!isComplete) {
+                                    completeConversation();
+                                }
+                                return;
+                            }
+                            
+                            const chunk = decoder.decode(value, { stream: true });
+                            processChunk(chunk);
+                            
+                            return read();
+                        }).catch(error => {
+                            console.error('读取流错误:', error);
+                            if (!isComplete) {
+                                showError('读取响应时出错');
+                            }
+                        });
+                    }
+                    
+                    return read();
+                })
+                .catch(error => {
+                    console.error('请求错误:', error);
+                    showError('网络请求失败，请检查连接');
+                });
+            
+            function processChunk(chunk) {
+                const lines = chunk.split('\n');
+                
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.substring(6);
+                        
+                        if (data === '[END]') {
+                            completeConversation();
+                            return;
+                        }
+                        
+                        if (data.trim()) {
+                            accumulatedContent += data;
+                            updateDisplay();
+                        }
+                    }
+                }
+            }
+            
+            function updateDisplay() {
+                const responseElement = document.getElementById(responseId);
+                if (responseElement) {
+                    responseElement.textContent = accumulatedContent;
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            }
+            
+            function completeConversation() {
+                if (isComplete) return;
+                
+                isComplete = true;
+                
+                // 添加时间戳
+                const timeElement = document.createElement('div');
+                timeElement.className = 'message-time';
+                timeElement.textContent = '刚刚';
+                aiMessage.appendChild(timeElement);
+                
+                // 重新启用输入框和按钮
+                inputElement.disabled = false;
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = '<i class="fas fa-paper-plane"></i> 发送';
+                
+                // 聚焦输入框
+                inputElement.focus();
+            }
+            
+            function showError(message) {
+                const responseElement = document.getElementById(responseId);
+                if (responseElement) {
+                    responseElement.textContent = message;
+                }
+                
+                completeConversation();
+            }
+            
+            // 设置超时保护（3分钟）
+            setTimeout(() => {
+                if (!isComplete) {
+                    showError('⏰ 请求超时，请重试');
+                }
+            }, 180000);
+        }
+
+        // 重新加载知识库
+        function reloadVectorStore() {
+            if (confirm('确定要重新加载知识库吗？这会重新处理所有授权文件。')) {
+                fetch('/reload_vector_store')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showAlert('知识库重新加载成功！', 'success');
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            showAlert('重新加载失败: ' + data.message, 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('重新加载失败，请重试', 'danger');
+                    });
+            }
+        }
+
+        // 显示提示消息
+        function showAlert(message, type) {
+            // 移除现有的提示
+            const existingAlert = document.querySelector('.alert-toast');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            // 创建新的提示
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-toast position-fixed top-0 end-0 m-4`;
+            alert.style.zIndex = '1060';
+            alert.innerHTML = `
+                <div class="d-flex">
+                    <div class="flex-grow-1">${message}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.body.appendChild(alert);
+            
+            // 5秒后自动移除
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // 回车发送消息
+        document.getElementById('questionInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                askQuestion();
+            }
+        });
+    </script>
+</body>
+</html>

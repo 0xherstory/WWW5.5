@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>文件详情 - AI知识库平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0066cc, #0099ff);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .nav-bar {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #495057;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #495057;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .file-header {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid #0066cc;
+        }
+        
+        .file-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .file-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .file-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .stat-badge {
+            background: #e7f3ff;
+            color: #0066cc;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .file-content {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0066cc, #0099ff);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0066cc;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 文件详情</h1>
+            <div class="subtitle">查看完整的文件内容和统计信息</div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="nav-links">
+                <a href="/">首页</a>
+                <a href="/dashboard">控制台</a>
+                <a href="/community">内容分享</a>
+                <a href="/profile">我的账户</a>
+            </div>
+            
+            <div class="user-info">
+                <span>欢迎, {{ user_id }}</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <a href="/community" class="back-link">
+                ← 返回内容分享
+            </a>
+            
+            <div class="file-header">
+                <h1 class="file-title">{{ file_info.filename }}</h1>
+                
+                <div class="file-meta">
+                    <div class="meta-item">
+                        <strong>作者:</strong> {{ file_info.user_id }}
+                    </div>
+                    <div class="meta-item">
+                        <strong>上传时间:</strong> {{ file_info.upload_time[:19].replace('T', ' ') }}
+                    </div>
+                    <div class="meta-item">
+                        <strong>文件ID:</strong> {{ file_info.file_id }}
+                    </div>
+                    {% if file_info.authorize_rag %}
+                    <div class="meta-item">
+                        <strong>状态:</strong> <span style="color: #28a745;">● 已授权AI学习</span>
+                    </div>
+                    {% else %}
+                    <div class="meta-item">
+                        <strong>状态:</strong> <span style="color: #6c757d;">● 未授权AI学习</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="file-stats">
+                    <div class="stat-badge">
+                        🔗 {{ file_info.reference_count }} 次引用
+                    </div>
+                    <div class="stat-badge">
+                        💰 {{ "%.8f"|format(file_info.total_reward) }} coin 总收益
+                    </div>
+                </div>
+            </div>
+            
+            <div class="file-content">
+                {{ file_info.content }}
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/community" class="btn btn-secondary">
+                    📋 返回列表
+                </a>
+                {% if file_info.user_id == user_id %}
+                <button class="btn btn-primary" onclick="shareFile()">
+                    📤 再次分享
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function shareFile() {
+            // 将当前文件内容填充到分享表单
+            const filename = "{{ file_info.filename }} (副本)";
+            const content = `{{ file_info.content }}`;
+            
+            // 这里可以打开分享模态框或跳转到分享页面
+            alert('复制成功！请在分享页面修改内容后重新提交。');
+            
+            // 可选：跳转到分享页面并填充数据
+            window.location.href = '/dashboard#share';
+        }
+        
+        // 添加复制功能
+        function copyContent() {
+            const content = `{{ file_info.content }}`;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('内容已复制到剪贴板！');
+            });
+        }
+    </script>
+</body>
+</html>

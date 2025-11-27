@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多用户AI知识库平台 - 本地Ganache</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f0f2f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header h1 { margin-bottom: 10px; }
+        .header-info { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .nav { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .nav button { padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; transition: all 0.3s; }
+        .nav button:hover { background: #5568d3; transform: translateY(-2px); }
+        .nav button.active { background: #764ba2; }
+        .section { background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none; }
+        .section.active { display: block; }
+        .section h2 { margin-bottom: 20px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 5px; font-size: 14px; transition: border 0.3s; }
+        input:focus, textarea:focus { outline: none; border-color: #667eea; }
+        textarea { min-height: 150px; resize: vertical; }
+        button { padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
+        button:hover { background: #5568d3; transform: translateY(-2px); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-card h3 { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
+        .stat-card p { font-size: 24px; font-weight: bold; }
+        .share-item { padding: 15px; border-bottom: 1px solid #eee; transition: background 0.3s; }
+        .share-item:hover { background: #f8f9fa; }
+        .share-item:last-child { border-bottom: none; }
+        .chat-area { height: 400px; overflow-y: auto; border: 2px solid #e0e0e0; padding: 15px; margin: 15px 0; border-radius: 5px; background: #fafafa; }
+        .message { margin: 15px 0; padding: 12px 16px; border-radius: 8px; max-width: 80%; word-wrap: break-word; }
+        .user-msg { background: #667eea; color: white; margin-left: auto; text-align: right; }
+        .ai-msg { background: white; border: 1px solid #e0e0e0; }
+        .sources { background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px; }
+        .alert { padding: 12px; border-radius: 5px; margin: 10px 0; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        label { display: flex; align-items: center; margin: 10px 0; cursor: pointer; }
+        label input[type="checkbox"] { margin-right: 8px; width: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 多用户AI知识库平台 (本地Ganache)</h1>
+            <div class="header-info">
+                <p>当前用户: <span id="currentUser">未登录</span></p>
+                <p>连接钱包: <span id="connectedWallet">未连接</span></p>
+                <button onclick="logout()" style="background: rgba(255,255,255,0.2);">退出登录</button>
+            </div>
+        </div>
+
+        <div class="nav">
+            <button onclick="showSection('upload')" class="active">📤 上传并铸造NFT</button>
+            <button onclick="showSection('shares')">📋 内容分享</button>
+            <button onclick="showSection('chat')">💬 AI对话</button>
+            <button onclick="showSection('search')">🔍 搜索NFT</button>
+            <button onclick="showSection('stats')">📊 我的统计</button>
+        </div>
+
+        <!-- 上传并铸造NFT -->
+        <div id="upload" class="section active">
+            <h2>📤 上传文本并铸造NFT</h2>
+            <div class="alert alert-info">
+                <strong>提示：</strong> 请先连接MetaMask钱包，确保钱包连接到本地Ganache网络。上传内容将自动上传到本地IPFS并铸造NFT。
+            </div>
+            <textarea id="contentInput" placeholder="输入要上传的文本内容..."></textarea>
+            <label>
+                <input type="checkbox" id="authorizeRAG"> 授权用于RAG生成（文件将保存到本地知识库）
+            </label>
+            <button onclick="uploadAndMint()" id="mintBtn">上传并铸造NFT</button>
+            <div id="uploadResult"></div>
+        </div>
+
+        <!-- 内容分享 -->
+        <div id="shares" class="section">
+            <h2>📋 内容分享</h2>
+            <div id="sharesList">加载中...</div>
+        </div>
+
+        <!-- AI对话 -->
+        <div id="chat" class="section">
+            <h2>💬 AI对话 (每次 0.000001 ETH)</h2>
+            <div class="alert alert-info">
+                <strong>提示：</strong> 每次对话需要支付 0.000001 ETH。回答中使用的知识库内容将自动记录来源，并分发奖励给内容提供者。
+            </div>
+            <div class="chat-area" id="chatArea">
+                <div class="message ai-msg">欢迎使用AI知识库！请开始提问。</div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="questionInput" placeholder="输入问题..." onkeypress="if(event.key==='Enter') askAI()">
+                <button onclick="askAI()" id="askBtn">发送 (需要支付)</button>
+            </div>
+        </div>
+
+        <!-- 搜索NFT -->
+        <div id="search" class="section">
+            <h2>🔍 搜索NFT</h2>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="nftIdInput" placeholder="输入NFT ID">
+                <button onclick="searchNFT()">搜索</button>
+            </div>
+            <div id="searchResult" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div id="stats" class="section">
+            <h2>📊 我的统计</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>总收益</h3>
+                    <p id="totalEarnings">0 ETH</p>
+                </div>
+                <div class="stat-card">
+                    <h3>引用量</h3>
+                    <p id="citationCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>总支出</h3>
+                    <p id="totalSpent">0 ETH</p>
+                </div>
+                <div class="stat-card">
+                    <h3>对话次数</h3>
+                    <p id="chatCount">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let provider, signer, nftContract, rewardContract;
+let contractAddresses = {};
+const CHAT_FEE = '0.000001'; // ETH
+
+// 完整的合约ABI定义（确保与后端一致）
+const NFT_ABI = [
+    {
+        "inputs": [{"internalType": "address", "name": "to", "type": "address"},
+                  {"internalType": "string", "name": "uri", "type": "string"}],
+        "name": "mint",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+        "name": "tokenURI",
+        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+        "name": "ownerOf",
+        "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {"indexed": true, "internalType": "address", "name": "from", "type": "address"},
+            {"indexed": true, "internalType": "address", "name": "to", "type": "address"},
+            {"indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256"}
+        ],
+        "name": "Transfer",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {"indexed": true, "internalType": "address", "name": "to", "type": "address"},
+            {"indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256"},
+            {"indexed": false, "internalType": "string", "name": "uri", "type": "string"}
+        ],
+        "name": "Mint",
+        "type": "event"
+    }
+];
+
+const REWARD_ABI = [
+    {
+        "inputs": [{"internalType": "bytes32", "name": "conversationId", "type": "bytes32"}],
+        "name": "payForChat",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "chatFee",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
+// 初始化
+async function init() {
+    console.log('开始初始化...');
+    
+    // 获取合约信息
+    try {
+        const response = await fetch('/api/contract_info');
+        contractAddresses = await response.json();
+        console.log('获取合约信息成功:', contractAddresses);
+    } catch (error) {
+        console.error('获取合约信息失败:', error);
+        showAlert('uploadResult', '获取合约信息失败，请检查后端服务', 'error');
+    }
+
+    // 检查登录状态
+    await checkLoginStatus();
+    
+    // 初始化Web3（连接到Ganache）
+    await initWeb3();
+}
+
+async function checkLoginStatus() {
+    try {
+        const response = await fetch('/api/stats');
+        if (response.ok) {
+            document.getElementById('currentUser').textContent = '已登录';
+            console.log('用户已登录');
+        } else {
+            window.location.href = '/';
+        }
+    } catch (error) {
+        window.location.href = '/';
+    }
+}
+
+async function initWeb3() {
+    console.log('开始初始化Web3...');
+    
+    try {
+        if (typeof window.ethereum !== 'undefined') {
+            console.log('检测到MetaMask');
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            
+            // 请求账户访问
+            console.log('请求账户访问...');
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            
+            // 检查网络
+            const network = await provider.getNetwork();
+            console.log('当前网络:', network);
+            
+            // 如果是Ganache网络（chainId: 1337）
+            if (network.chainId !== 1337) {
+                console.log('网络不匹配，尝试切换到Ganache...');
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x539' }] // 1337 in hex
+                    });
+                    console.log('网络切换成功');
+                } catch (switchError) {
+                    // 如果网络不存在，添加它
+                    if (switchError.code === 4902) {
+                        console.log('网络不存在，添加Ganache网络...');
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: '0x539',
+                                chainName: 'Ganache Local',
+                                rpcUrls: ['http://127.0.0.1:7545'],
+                                nativeCurrency: {
+                                    name: 'ETH',
+                                    symbol: 'ETH',
+                                    decimals: 18
+                                }
+                            }]
+                        });
+                        console.log('网络添加成功');
+                    } else {
+                        throw switchError;
+                    }
+                }
+            }
+            
+            signer = provider.getSigner();
+            const address = await signer.getAddress();
+            console.log('当前钱包地址:', address);
+            document.getElementById('connectedWallet').textContent = address.substring(0, 6) + '...' + address.substring(38);
+            
+            // 加载合约
+            await loadContracts();
+        } else {
+            console.log('未检测到MetaMask，使用直接连接');
+            provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:7545');
+            alert('请安装MetaMask并连接到本地Ganache网络');
+        }
+    } catch (error) {
+        console.error('初始化Web3失败:', error);
+        showAlert('uploadResult', 'Web3初始化失败: ' + error.message, 'error');
+    }
+}
+
+async function loadContracts() {
+    console.log('开始加载合约...');
+    console.log('合约地址信息:', contractAddresses);
+    
+    try {
+        if (contractAddresses.nft_contract_address && contractAddresses.nft_contract_address !== '0x...') {
+            console.log('正在加载NFT合约:', contractAddresses.nft_contract_address);
+            nftContract = new ethers.Contract(contractAddresses.nft_contract_address, NFT_ABI, signer);
+            
+            // 测试合约连接
+            try {
+                const name = await nftContract.name();
+                console.log('NFT合约连接成功，名称:', name);
+            } catch (testError) {
+                console.log('NFT合约测试调用失败，但继续加载:', testError);
+            }
+            
+            console.log('NFT合约加载成功');
+        } else {
+            console.error('NFT合约地址无效:', contractAddresses.nft_contract_address);
+            showAlert('uploadResult', 'NFT合约地址配置无效', 'error');
+        }
+        
+        if (contractAddresses.reward_contract_address && contractAddresses.reward_contract_address !== '0x...') {
+            console.log('正在加载奖励合约:', contractAddresses.reward_contract_address);
+            rewardContract = new ethers.Contract(contractAddresses.reward_contract_address, REWARD_ABI, signer);
+            
+            // 测试合约连接
+            try {
+                const fee = await rewardContract.chatFee();
+                console.log('奖励合约连接成功，费用:', fee.toString());
+            } catch (testError) {
+                console.log('奖励合约测试调用失败，但继续加载:', testError);
+            }
+            
+            console.log('奖励合约加载成功');
+        } else {
+            console.error('奖励合约地址无效:', contractAddresses.reward_contract_address);
+            showAlert('uploadResult', '奖励合约地址配置无效', 'error');
+        }
+        
+        // 检查合约是否成功加载
+        if (nftContract && rewardContract) {
+            console.log('所有合约加载成功！');
+            showAlert('uploadResult', '合约加载成功，可以开始使用', 'success');
+        }
+        
+    } catch (error) {
+        console.error('加载合约失败:', error);
+        showAlert('uploadResult', '加载合约失败: ' + error.message, 'error');
+    }
+}
+
+async function uploadAndMint() {
+    const content = document.getElementById('contentInput').value;
+    const authorizeRAG = document.getElementById('authorizeRAG').checked;
+
+    if (!content.trim()) {
+        showAlert('uploadResult', '请输入内容', 'error');
+        return;
+    }
+
+    if (!nftContract) {
+        showAlert('uploadResult', 'NFT合约未加载，请检查合约地址配置', 'error');
+        console.log('当前nftContract:', nftContract);
+        console.log('合约地址:', contractAddresses.nft_contract_address);
+        return;
+    }
+
+    const btn = document.getElementById('mintBtn');
+    btn.disabled = true;
+    btn.textContent = '处理中...';
+
+    try {
+        // 1. 先上传到IPFS（通过后端）
+        showAlert('uploadResult', '正在上传到本地IPFS...', 'info');
+        
+        // 2. 准备IPFS URI（这里简化，实际应该先上传获取hash）
+        const ipfsHash = 'temp_' + Date.now(); // 临时值，实际应该从后端获取
+        const tokenURI = `ipfs://${ipfsHash}`;
+
+        // 3. 铸造NFT
+        showAlert('uploadResult', '正在铸造NFT...', 'info');
+        console.log('开始铸造NFT...');
+        const mintTx = await nftContract.mint(await signer.getAddress(), tokenURI);
+        console.log('铸造交易已发送:', mintTx.hash);
+        showAlert('uploadResult', `交易已发送: ${mintTx.hash}，等待确认...`, 'info');
+        
+        const receipt = await mintTx.wait();
+        console.log('交易确认:', receipt);
+        
+        // 4. 从事件中获取tokenId
+        let nftId = '1'; // 默认值
+        if (receipt.events && receipt.events.length > 0) {
+            const mintEvent = receipt.events.find(e => e.event === 'Mint');
+            if (mintEvent) {
+                nftId = mintEvent.args.tokenId.toString();
+            } else {
+                // 如果没有Mint事件，尝试从Transfer事件获取
+                const transferEvent = receipt.events.find(e => e.event === 'Transfer' && e.args.from === '0x0000000000000000000000000000000000000000');
+                if (transferEvent) {
+                    nftId = transferEvent.args.tokenId.toString();
+                }
+            }
+        }
+        
+        console.log('NFT铸造成功，ID:', nftId);
+        showAlert('uploadResult', `NFT铸造成功！ID: ${nftId}`, 'success');
+
+        // 5. 上传内容到后端并保存
+        const response = await fetch('/api/upload_and_mint', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                content,
+                authorize_rag: authorizeRAG,
+                mint_tx_hash: receipt.transactionHash,
+                nft_id: nftId
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            showAlert('uploadResult', 
+                `✅ 完成！NFT ID: ${result.nft_id}<br>IPFS: <a href="${result.ipfs_link}" target="_blank">${result.ipfs_link}</a>`, 
+                'success');
+            document.getElementById('contentInput').value = '';
+        } else {
+            showAlert('uploadResult', '错误: ' + result.error, 'error');
+        }
+    } catch (error) {
+        console.error('铸造NFT错误:', error);
+        showAlert('uploadResult', '错误: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '上传并铸造NFT';
+    }
+}
+
+// 其他函数保持不变...
+
+        async function loadShares() {
+            try {
+                const response = await fetch('/api/shares');
+                const shares = await response.json();
+                const list = document.getElementById('sharesList');
+                
+                if (shares.length === 0) {
+                    list.innerHTML = '<p>暂无分享内容</p>';
+                    return;
+                }
+                
+                list.innerHTML = shares.map(s => `
+                    <div class="share-item">
+                        <strong>${s.user_name}</strong> 在 ${new Date(s.created_at).toLocaleString()} 分享了 
+                        <strong>NFT #${s.nft_id}</strong><br>
+                        <a href="${s.ipfs_link}" target="_blank">🔗 IPFS链接</a>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('sharesList').innerHTML = '<p>加载失败: ' + error.message + '</p>';
+            }
+        }
+
+        async function askAI() {
+            const question = document.getElementById('questionInput').value.trim();
+            if (!question) return;
+
+            if (!rewardContract) {
+                alert('奖励合约未加载，请检查合约地址配置');
+                return;
+            }
+
+            const btn = document.getElementById('askBtn');
+            btn.disabled = true;
+
+            try {
+                // 1. 支付对话费用
+                const conversationId = ethers.utils.id(question + Date.now().toString());
+                const chatFeeWei = await rewardContract.chatFee();
+                
+                const payTx = await rewardContract.payForChat(conversationId, {
+                    value: chatFeeWei
+                });
+                
+                showMessage('user-msg', `支付交易: ${payTx.hash}，等待确认...`);
+                
+                await payTx.wait();
+                showMessage('user-msg', question);
+                
+                // 2. 发送问题到后端
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        question,
+                        payment_tx_hash: payTx.hash,
+                        conversation_id: conversationId
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let aiMessageDiv = null;
+
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, {stream: true});
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[END]') break;
+                            
+                            if (!aiMessageDiv) {
+                                aiMessageDiv = document.createElement('div');
+                                aiMessageDiv.className = 'message ai-msg';
+                                document.getElementById('chatArea').appendChild(aiMessageDiv);
+                            }
+                            
+                            aiMessageDiv.textContent += data;
+                            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('错误:', error);
+                showMessage('ai-msg', '错误: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                document.getElementById('questionInput').value = '';
+            }
+        }
+
+        function showMessage(type, content) {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.textContent = content;
+            document.getElementById('chatArea').appendChild(div);
+            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+        }
+
+        async function searchNFT() {
+            const nftId = document.getElementById('nftIdInput').value;
+            if (!nftId) return;
+
+            try {
+                const response = await fetch(`/api/search_nft?nft_id=${nftId}`);
+                const result = await response.json();
+
+                if (result.error) {
+                    document.getElementById('searchResult').innerHTML = 
+                        `<div class="alert alert-error">${result.error}</div>`;
+                } else {
+                    document.getElementById('searchResult').innerHTML = `
+                        <div class="alert alert-success">
+                            <h3>NFT #${result.nft_id}</h3>
+                            <p><strong>作者:</strong> ${result.author || result.owner || '未知'}</p>
+                            <p><strong>内容:</strong> ${result.content ? result.content.substring(0, 200) + '...' : '无'}</p>
+                            <p><strong>IPFS链接:</strong> <a href="${result.ipfs_link || result.token_uri}" target="_blank">${result.ipfs_link || result.token_uri}</a></p>
+                            <p><strong>创建时间:</strong> ${result.created_at || '链上数据'}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('searchResult').innerHTML = 
+                    `<div class="alert alert-error">搜索失败: ${error.message}</div>`;
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+                document.getElementById('totalEarnings').textContent = stats.total_earnings_eth.toFixed(8) + ' ETH';
+                document.getElementById('citationCount').textContent = stats.citation_count;
+                document.getElementById('totalSpent').textContent = stats.total_spent_eth.toFixed(8) + ' ETH';
+                document.getElementById('chatCount').textContent = stats.chat_count;
+            } catch (error) {
+                console.error('加载统计失败:', error);
+            }
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (sectionId === 'shares') loadShares();
+            if (sectionId === 'stats') loadStats();
+        }
+
+        function showAlert(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        async function logout() {
+            await fetch('/api/logout', {method: 'POST'});
+            window.location.href = '/';
+        }
+
+        // 页面加载
+        window.onload = init;
+    </script>
+</body>
+</html>

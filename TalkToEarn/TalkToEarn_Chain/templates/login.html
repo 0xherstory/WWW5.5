@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>登录/注册 - AI知识库平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .login-box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 450px; }
+        h2 { margin-bottom: 30px; text-align: center; color: #333; }
+        .tabs { display: flex; margin-bottom: 25px; border-bottom: 2px solid #e0e0e0; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; color: #666; transition: all 0.3s; }
+        .tab.active { color: #667eea; border-bottom: 3px solid #667eea; font-weight: bold; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #e0e0e0; border-radius: 5px; font-size: 14px; transition: border 0.3s; }
+        input:focus { outline: none; border-color: #667eea; }
+        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; transition: transform 0.2s; }
+        button:hover { transform: translateY(-2px); }
+        #message { margin-top: 15px; padding: 10px; border-radius: 5px; text-align: center; }
+        .message-success { background: #d4edda; color: #155724; }
+        .message-error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>🌐 AI知识库平台</h2>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">登录</div>
+            <div class="tab" onclick="switchTab('register')">注册</div>
+        </div>
+        <div id="loginForm">
+            <input type="text" id="loginName" placeholder="钱包名称">
+            <input type="password" id="loginPassword" placeholder="密码">
+            <button onclick="login()">登录</button>
+        </div>
+        <div id="registerForm" style="display:none;">
+            <input type="text" id="regName" placeholder="钱包名称">
+            <input type="text" id="regAddress" placeholder="钱包地址 (0x...)">
+            <button onclick="register()">注册</button>
+        </div>
+        <div id="message"></div>
+    </div>
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if (tab === 'login') {
+                document.querySelector('.tab').classList.add('active');
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            }
+            document.getElementById('message').textContent = '';
+        }
+        async function login() {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    wallet_name: document.getElementById('loginName').value,
+                    password: document.getElementById('loginPassword').value
+                })
+            });
+            const result = await response.json();
+            const msgDiv = document.getElementById('message');
+            if (result.success) {
+                msgDiv.className = 'message-success';
+                msgDiv.textContent = '登录成功，正在跳转...';
+                setTimeout(() => window.location.href = '/', 1000);
+            } else {
+                msgDiv.className = 'message-error';
+                msgDiv.textContent = result.error || '登录失败';
+            }
+        }
+        async function register() {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    wallet_name: document.getElementById('regName').value,
+                    wallet_address: document.getElementById('regAddress').value,
+                    password: 'default123' // 简化处理，实际应该让用户输入
+                })
+            });
+            const result = await response.json();
+            const msgDiv = document.getElementById('message');
+            if (result.success) {
+                msgDiv.className = 'message-success';
+                msgDiv.textContent = '注册成功，正在跳转...';
+                setTimeout(() => window.location.href = '/', 1000);
+            } else {
+                msgDiv.className = 'message-error';
+                msgDiv.textContent = result.error || '注册失败';
+            }
+        }
+    </script>
+</body>
+</html>
