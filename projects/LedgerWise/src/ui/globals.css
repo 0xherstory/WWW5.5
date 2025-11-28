@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --neo-bg: #f0f0f0;
+  --neo-main: #ffffff;
+  --neo-shadow: #000000;
+  --neo-primary: #FF90E8; /* Pink */
+  --neo-secondary: #23A094; /* Teal */
+  --neo-accent: #FFC900; /* Yellow */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--neo-bg);
+  /* Dot Pattern Background */
+  background-image: radial-gradient(#000 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: #0d0d0d;
+}
+
+@layer components {
+  /* The Core Neobrutal Card Style */
+  .neo-card {
+    @apply bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-none;
+  }
+  
+  /* Neobrutal Button */
+  .neo-btn {
+    @apply px-6 py-3 font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] 
+    active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]
+    hover:-translate-y-[2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]
+    transition-all duration-200 ease-out;
+  }
+
+  /* Neobrutal Input (Applying globally to inputs if not styled in sub-components) */
+  input, select, textarea {
+    @apply border-2 border-black rounded-none p-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all;
+  }
+}
+
+@layer utilities {
+  .animate-slideUp {
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  /* Stagger delays for smooth scrolling effect */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(-3%); }
+    50% { transform: translateY(3%); }
+  }
+  
+  .animate-bounce-slow {
+    animation: bounce-slow 3s infinite ease-in-out;
+  }
+}

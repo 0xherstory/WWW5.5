@@ -1,0 +1,43 @@
+{
+  "name": "ai-web3-expense-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@rainbow-me/rainbowkit": "^2.1.0",
+    "@tanstack/react-query": "^5.28.0",
+    "buffer": "6.0.3",
+    "chart.js": "^4.4.0",
+    "crypto-js": "^4.2.0",
+    "lucide-react": "^0.555.0",
+    "next": "14.2.0",
+    "papaparse": "^5.4.1",
+    "pdf-parse": "^1.1.1",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^3.5.0",
+    "viem": "^2.9.0",
+    "wagmi": "^2.5.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.0",
+    "@types/node": "^20",
+    "@types/papaparse": "^5.3.14",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.0",
+    "postcss": "^8",
+    "shadcn": "^3.5.0",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }
+}
