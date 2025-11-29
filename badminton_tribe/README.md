@@ -39,7 +39,7 @@ In traditional badminton events, organizers (group leaders) often face pain poin
 
 It's like having an **absolutely fair, never-resting robot butler** (Smart Contract) who manages and distributes money for us.
 
-### 🔄 Fund Flow Diagram
+### 3.1 🔄 Fund Flow Diagram
 
 ```mermaid
 sequenceDiagram
@@ -60,6 +60,46 @@ sequenceDiagram
     Note over Contract, Player: 4. Settlement & Distribution
     Contract->>Host: Pay Court Fees (30 USDT)
     Contract->>Player: Open Refund Claim (2.5 USDT)
+```
+
+### 3.2 🗺️ Event Lifecycle Flowchart
+
+```mermaid
+graph TD
+    %% Nodes
+    Start((Start)) --> Connect[Connect Wallet]
+    Connect --> Role{User Role?}
+    
+    %% Host Path
+    Role -->|Host| Create[Create Event]
+    Create --> Recruit[Recruiting: Wait for Players]
+    Recruit -->|Approve Players| Ready[Event Ready]
+    Ready --> Play[🏸 Activity Day]
+    Play --> Settle[Submit Expense]
+    Settle --> ChallengePeriod{"Challenge Period<br/>(24h)"}
+    
+    %% Player Path
+    Role -->|Player| Browse[Browse Events]
+    Browse --> Join[Join & Pay]
+    Join --> Wait[Wait for Approval]
+    Wait -->|Approved| Ready
+    
+    %% Settlement Logic
+    ChallengePeriod -->|No Objection| Finalize[Finalize Settlement]
+    ChallengePeriod -->|Challenge!| Admin[Admin Intervention]
+    Admin --> Finalize
+    
+    %% End
+    Finalize --> Claim[Claim Refund]
+    Finalize --> Rate[Submit Rating]
+    Claim --> End((End))
+    Rate --> End
+    
+    %% Styling
+    style Start fill:#f9f,stroke:#333,stroke-width:2px
+    style End fill:#f9f,stroke:#333,stroke-width:2px
+    style Role fill:#ff9,stroke:#333
+    style Play fill:#bfb,stroke:#333
 ```
 
 ---
@@ -159,6 +199,10 @@ This is the most "hardcore" Web3 design of this project. After the event, the Ho
 > **Frontend Display:**
 > > *The bottom shows the "Submit Expense" button, Host needs to input actual cost.*
 
+<img src="./frontend_screenshot/eventlist_init_settlement.png" style="width: 60%;" />
+
+<img src="./frontend_screenshot/eventlist_challenge.png" style="width: 60%;" />
+
 ### 6.6 Admin Arbitration (Admin)
 If a dispute occurs, the contract owner (Owner/DAO) intervenes through the Admin Panel.
 
@@ -170,7 +214,7 @@ If a dispute occurs, the contract owner (Owner/DAO) intervenes through the Admin
 <img src="./frontend_screenshot/admin_panel.png" style="width: 60%;" />
 
 ### 6.7 Fund Claim (Claim)
-After settlement is complete, refunds/payments are finalized. All fund changes (Host's income, Player's refund) are recorded in the `withdrawableFunds` mapping.
+Scheduling `finalizeSettlement` to finalize the settlement. After settlement is complete, refunds/payments are finalized. All fund changes (Host's income, Player's refund) are recorded in the `withdrawableFunds` mapping.
 
 * **Pull Pattern**: Users must actively click "Claim" or related buttons to call `claimFunds` to withdraw, which is a Solidity best practice to prevent the contract from getting stuck during transfers.
 
@@ -178,6 +222,14 @@ After settlement is complete, refunds/payments are finalized. All fund changes (
 > > *My Profile: Displays Total Withdrawable Balance.*
 
 <img src="./frontend_screenshot/profile.png" style="width: 60%;" />
+
+### 6.8 Event Rating
+Call `batchSubmitRatings` or `SubmitRating` to rate the event. Only event participants can see the rating board. Rate Player skills and Host organization ability; self-rating is not allowed.
+
+> **Frontend Display:**
+> > * Event participants rating the event on the details page.
+
+<img src="./frontend_screenshot/eventlist_rating.png" style="width: 60%;" />
 
 ---
 
@@ -203,11 +255,18 @@ BadmintonTribe is constantly evolving!
 
 ### 8.1 Functional Optimization
 
-*   🏆 **V1.1**: Introduce **SBT Badges**. Generate SBT (Soulbound Token) based on attendance rate, skill level, and event organization ability scores, such as Reliable Player, Badminton Master, Super Organizer, etc.
+*   🏆 **V1.1**: Introduce **SBT Badges**. Generate SBTs (Soulbound Tokens) based on participation count, attendance rate, skill level, and organizer performance ratings.
+    * **Participation SBT:** Minted automatically after successfully participating in an event.
+    * **Skill SBT:** Minted based on ratings given by other participants.
+    * **Organizer Reputation SBT:** Minted based on participants’ ratings of the organizer’s performance and the number of events they have organized.
 *   🗳️ **V2.0**: Enable **DAO Governance**. Let the community decide platform fees and rules; transfer dispute arbitration power from Admin to a Community Committee.
+    * Allow the community to decide platform service fees and core rules;
+    * Transfer dispute arbitration power from Admin to a community committee;
+    * Enable blacklist arbitration through community voting.
 *   🚀 **V3.0**: Implement **Other Functional Optimizations**
     * Improve on-chain user identity information, such as gender, nickname, skill level; 
     * Support copying and creating new events from existing ones; support adding event social group links or QR code information; 
+    * The host must register as a participant in the event they organize;
     * Allow waitlisting, automatically promoting waitlisted users when someone withdraws; 
     * Support check-in verification; 
     * Support uploading receipt/photos of venue fees; 
@@ -229,7 +288,7 @@ BadmintonTribe is constantly evolving!
 ---
 
 ## 9. Personal Insights
-
+* **Why web3**: Before building a project, it is important to clearly identify which pain points Web3 can truly solve in the target scenario. These Web3-native, non-substitutable characteristics will form the foundation for the project’s long-term vision and roadmap.
 * **Strengthen Frontend Skills**: Writing and modifying frontend code consumes a lot of tokens, so knowing frontend development saves money.
 * **Control Iteration Pace**: Bug fixes and code optimization should be done gradually. Don't try to tackle everything at once, or you might fall into an abyss of no return.
 * **AI Programming Tips**:

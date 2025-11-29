@@ -14,7 +14,7 @@
 对于羽毛球我是又菜又爱。最近在学solidity，就想结合web3的技术特点构建一个羽毛球活动组织平台，并尝试去解决一些常见问题：
 *   **组织者风险**：组织者往往需要垫付场地费，如果参与者临时“鸽子”，组织者将承担经济损失。
 *   **资金不透明**：活动费用的收支明细通常只有组织者自己知道，参与者难以核实资金去向。
-*   **信任成本**：报名陌生人的球具如同开盲盒，因为互不了解技术级别（每个人对羽毛球业余技术等级的划分和理解都不太一样），可能会影响运动体验，高手发挥不出来，菜鸟感觉被遛。
+*   **信任成本**：报名陌生人的球局如同开盲盒，因为互不了解技术级别（每个人对羽毛球业余技术等级的划分和理解都不太一样），可能会影响运动体验，高手发挥不出来，菜鸟感觉被遛。
 
 **BadmintonTribe** 正是为了解决这些问题而生。通过尝试将活动组织流程搬上区块链，利用智能合约的公开、透明和自动执行特性，构建一个无需信任中介的运动社群。
 
@@ -38,7 +38,7 @@
 
 这就好比我们有一个**绝对公正、永不休息的机器人管家**（智能合约），它帮我们管钱、分钱。
 
-### 🔄 资金流转示意图
+### 3.1 🔄 资金流转示意图
 
 ```mermaid
 sequenceDiagram
@@ -59,6 +59,46 @@ sequenceDiagram
     Note over Contract, Player: 4. 结算与分发
     Contract->>Host: 支付场地费 (30 USDT)
     Contract->>Player: 开放退款领取 (2.5 USDT)
+```
+
+### 3.2 🗺️ 活动全生命周期流程图
+
+```mermaid
+graph TD
+    %% Nodes
+    Start((开始)) --> Connect[连接钱包]
+    Connect --> Role{用户角色?}
+    
+    %% Host Path
+    Role -->|组织者| Create[创建活动]
+    Create --> Recruit[招募中: 等待报名]
+    Recruit -->|批准报名| Ready[活动就绪]
+    Ready --> Play[🏸 活动进行]
+    Play --> Settle[提交费用]
+    Settle --> ChallengePeriod{"挑战期<br/>(24小时)"}
+    
+    %% Player Path
+    Role -->|参与者| Browse[浏览活动]
+    Browse --> Join[支付报名]
+    Join --> Wait[等待批准]
+    Wait -->|已批准| Ready
+    
+    %% Settlement Logic
+    ChallengePeriod -->|无异议| Finalize[完成结算]
+    ChallengePeriod -->|发起挑战!| Admin[管理员介入]
+    Admin --> Finalize
+    
+    %% End
+    Finalize --> Claim[提取退款]
+    Finalize --> Rate[提交评价]
+    Claim --> End((结束))
+    Rate --> End
+    
+    %% Styling
+    style Start fill:#f9f,stroke:#333,stroke-width:2px
+    style End fill:#f9f,stroke:#333,stroke-width:2px
+    style Role fill:#ff9,stroke:#333
+    style Play fill:#bfb,stroke:#333
 ```
 
 ---
@@ -158,6 +198,10 @@ Host 在活动详情页管理报名人员。Web3 的透明性在这里体现为�
 > **前端展示：**
 > > *底部展示了 "Submit Expense" 按钮，Host 需输入真实花费。*
 
+<img src="./frontend_screenshot/eventlist_init_settlement.png" style="width: 60%;" />
+
+<img src="./frontend_screenshot/eventlist_challenge.png" style="width: 60%;" />
+
 ### 6.6 管理员仲裁 (Admin)
 如果发生争议，合约拥有者（Owner/DAO）通过 Admin Panel 介入。
 
@@ -168,15 +212,23 @@ Host 在活动详情页管理报名人员。Web3 的透明性在这里体现为�
 
 <img src="./frontend_screenshot/admin_panel.png" style="width: 60%;" />
 
-### 6.7 资金提取 (Claim)
-结算完成后，多退少补。所有资金变更（Host 的收入、玩家的退款）都记录在 `withdrawableFunds` 映射中。
+### 6.7 完成结算及资金提取 (Claim)
+通过调用`finalizeSettlement`完成结算。结算完成后，多退少补。所有资金变更（Host 的收入、玩家的退款）都记录在 `withdrawableFunds` 映射中。
 
 * **Pull Pattern**：用户必须主动点击 "Claim" 或相关按钮调用 `claimFunds` 提现，这是 Solidity 最佳实践，避免合约在转账时卡死。
 
 > **前端展示：**
-> > *个人中心：展示可提取余额 (Total Withdrawable Balance)。*
+> > *个人中心：展示可提取余额。*
 
 <img src="./frontend_screenshot/profile.png" style="width: 60%;" />
+
+### 6.8 活动评价
+通过调用`batchSubmitRatings` 或 `SubmitRating`进行活动评价，。仅活动参与者才能看到打分板。对Player的技能和Host的组织能力打分，不允许自评。
+
+> **前端展示：**
+> > * 活动参与者在活动详情页进行活动评价
+
+<img src="./frontend_screenshot/eventlist_rating.png" style="width: 60%;" />
 
 ---
 
@@ -202,11 +254,18 @@ BadmintonTribe 还在持续进化中！
 
 ### 8.1 功能优化
 
-*   🏆 **V1.1**: 引入 **SBT 勋章**，根据出勤率、技能等级、活动组织能力评分等生成 SBT (Soulbound Token，灵魂绑定代币)，如靠谱玩家、羽球高手、超级组织者等。
-*   🗳️ **V2.0**: 开启 **DAO 治理**，让社区决定平台的手续费和规则；将争议仲裁权从 Admin 移交给社区委员会。
+*   🏆 **V1.1**: 引入 **SBT 勋章**，根据参加活动次数、出勤率、技能等级、活动组织能力评分等生成 SBT (Soulbound Token，灵魂绑定代币)
+    * **参与型SBT:** 成功参与活动即铸造
+    * **技能型SBT:** 基于参与人评分铸造SBT
+    * **组织者信誉SBT:** 基于参与人对组织者的组织能力评分及组织活动次数等铸造SBT
+*   🗳️ **V2.0**: 开启 **DAO 治理**
+    * 让社区决定平台的服务费和规则；
+    * 将争议仲裁权从 Admin 移交给社区委员会；
+    * 黑名单仲裁投票
 *   🚀 **V3.0**: 进行 **其他功能优化**，
     * 完善链上用户身份信息，如性别、昵称、技能等级；
     * 支持从已有活动复制和创建新活动，支持添加活动社交群的链接或二维码信息；
+    * 强制要求host必须报名自己组织的活动；
     * 允许候补，当有人退出时按序转正；
     * 支持签到打卡；
     * 支持上传场地费收据/照片；
@@ -228,10 +287,10 @@ BadmintonTribe 还在持续进化中！
 ---
 
 ## 9. 个人感悟
-
-* **加强前端技能**: 编写和修改前端代码很费token，所以如果懂前端会很省钱
-* **把握迭代节奏**: 修复bug及代码优化要循序渐进，不要总想一步登天全部搞定整个大的，否则可能直落深渊万劫不复
-* **总结AI编程技巧**: 
+* **为什么要web3:** 做项目之前需要想明白web3能解决项目场景的哪些痛点，这些非web3不可的特质将是支撑项目远期规划的基础
+* **加强前端技能:** 编写和修改前端代码很费token，所以如果懂前端会很省钱
+* **把握迭代节奏:** 修复bug及代码优化要循序渐进，不要总想一步登天全部搞定整个大的，否则可能坠落深渊万劫不复
+* **总结AI编程技巧:**
     * 定期删除与大模型的会话历史，否则因为历史缓存的关系会越来越费token
     * 每次开始新一轮对话时，先告诉项目背景及介绍主要功能让它了解项目概括，以免它在缺乏全局认识的情况下自以为是地乱改一通
     * 尽量给出具体的需求，一方面能省token，另一方面防止大模型注意力不集中

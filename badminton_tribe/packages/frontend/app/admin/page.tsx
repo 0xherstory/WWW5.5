@@ -84,10 +84,13 @@ export default function AdminPage() {
     const [forms, setForms] = useState<Record<string, { finalExpense: string, challenger: string, win: boolean }>>({});
 
     const updateForm = (id: string, field: string, value: any) => {
-        setForms(prev => ({
-            ...prev,
-            [id]: { ...prev[id], [field]: value }
-        }));
+        setForms(prev => {
+            const currentForm = prev[id] || { finalExpense: '', challenger: '', win: false };
+            return {
+                ...prev,
+                [id]: { ...currentForm, [field]: value }
+            };
+        });
     };
 
     // Resolve Action

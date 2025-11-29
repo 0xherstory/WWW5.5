@@ -1,7 +1,7 @@
 # HerSolidity-Minihackathon-2025
 
 
-大女人们，🎉🎉恭喜完成30 days in Solidity 挑战🎉🎉！度日如年，好在我们坚持下来啦，现在是展示你的想法，发声的时候啦。开始你的改变世界之旅吧。
+大女人们，🎉🎉恭喜完成30 days in Solidity 挑战🎉🎉！度日如年，好在我们坚持下来啦，现在是展示你的想法，发声的时候啦。开始你的改变世界之旅吧。 
 
 本次活动由Herstory社区发起，Powered by Web3Compass
 

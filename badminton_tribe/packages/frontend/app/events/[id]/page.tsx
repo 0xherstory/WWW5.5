@@ -241,9 +241,19 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
     };
 
     const handleSubmitRatings = () => {
-        // Extract scores
-        const targets = Object.keys(scores);
-        const values = Object.values(scores).map(Number);
+        const rawKeys = Object.keys(scores);
+        const targets: string[] = [];
+        const values: number[] = [];
+        
+        rawKeys.forEach(key => {
+            // key format: "address:type"
+            const [addr] = key.split(':');
+            if (scores[key] && addr) {
+                targets.push(addr);
+                values.push(Number(scores[key]));
+            }
+        });
+
         if (targets.length === 0) return;
 
         writeContract({
@@ -303,32 +313,65 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
     };
 
     const renderRatingBoard = () => {
-        if (!playerAddresses) return null;
-        const rateTargets = [...(playerAddresses as string[])];
-        // Add Host
-        if (evt[5] && !rateTargets.includes(evt[5])) {
-            rateTargets.push(evt[5]);
+        if (!playerAddresses || !address) return null;
+        
+        // 1. Permission Check: Current user must be a participant
+        const isParticipant = (playerAddresses as string[]).includes(address);
+        if (!isParticipant) return null;
+
+        const hostAddr = evt[5] as string;
+        
+        // 2. Build Rating Items
+        const itemsToRate: { id: string, label: string, key: string }[] = [];
+
+        // A. Skill Rating (Rate all other players)
+        (playerAddresses as string[]).forEach(pAddr => {
+            if (pAddr !== address) {
+                itemsToRate.push({
+                    id: pAddr,
+                    label: "Skill Rating",
+                    key: `${pAddr}:skill`
+                });
+            }
+        });
+
+        // B. Host Organization Rating (Rate host if not self)
+        if (hostAddr && hostAddr !== address) {
+            itemsToRate.push({
+                id: hostAddr,
+                label: "Organization Rating",
+                key: `${hostAddr}:org`
+            });
         }
 
+        if (itemsToRate.length === 0) return <p>No one to rate.</p>;
+
         return (
-            <div className="space-y-4">
-                <h3 className="font-bold text-gray-300">Rate Participants</h3>
-                <div className="grid gap-4">
-                    {rateTargets.map(target => (
-                        <div key={target} className="flex items-center gap-4 bg-gray-800 p-3 rounded">
-                            <div className="text-xs font-mono flex-1 truncate">{target} {target === evt[5] ? '(Host)' : ''}</div>
+            <div className="space-y-4 mt-6 pt-6 border-t border-slate-200">
+                <h3 className="font-bold text-slate-700 mb-2">Rate Participants</h3>
+                <div className="grid gap-3">
+                    {itemsToRate.map(item => (
+                        <div key={item.key} className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div className="flex-1 min-w-0">
+                                <div className="text-xs font-mono text-slate-600 truncate">
+                                    {item.id}
+                                </div>
+                                <div className="text-[10px] uppercase font-bold text-emerald-600 mt-1 tracking-wide">
+                                    {item.label}
+                                </div>
+                            </div>
                             <input 
                                 type="number" 
                                 min="10" max="100"
-                                placeholder="Score (10-100)"
-                                className="w-24 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-white"
-                                value={scores[target] || ''}
-                                onChange={(e) => setScores(prev => ({ ...prev, [target]: e.target.value }))}
+                                placeholder="10-100"
+                                className="w-28 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 text-right focus:ring-2 focus:ring-emerald-500 outline-none transition"
+                                value={scores[item.key] || ''}
+                                onChange={(e) => setScores(prev => ({ ...prev, [item.key]: e.target.value }))}
                             />
                         </div>
                     ))}
                 </div>
-                <button onClick={handleSubmitRatings} className="w-full py-3 bg-purple-600 hover:bg-purple-500 rounded-xl font-bold mt-4">
+                <button onClick={handleSubmitRatings} className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold mt-2 shadow-sm transition">
                     Submit Ratings
                 </button>
             </div>
