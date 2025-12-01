@@ -59,7 +59,7 @@ A next-generation **AI-powered Web3 expense tracker** built with **Next.js + IPF
 - **Charts**: Chart.js and Recharts with area, flow, and progress visualizations.
 
 ## 🧠 System Architecture
-maid
+```mermaid
 flowchart TB
   subgraph FE["Frontend Layer (Next.js Client)"]
     FE1[AI Input Hub\nNLP Parsing\nOCR / PDF Extraction]
@@ -85,8 +85,10 @@ flowchart TB
   BE3 --> BE4
   BE4 --> BC1
   FE3 --> BC1
-  FE3 --> BC2## ⚡ Quick Start
+  FE3 --> BC2
+```
 
+## ⚡ Quick Start
 ### 1. Install Dependencies
 
 npm install### 2. Set Up Environment Variables
