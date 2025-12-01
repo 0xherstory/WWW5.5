@@ -158,9 +158,11 @@ npm install
 ### 2. 配置环境变量
 
 ```bash
-cp .env.example .env.local```
+cp .env.example .env.local
+```
 
 在 `.env.local` 中添加：
+
 ```env
 QWEN_API_KEY=your_key
 CLAUDE_API_KEY=your_key             # 可选，作为回退模型
@@ -169,6 +171,7 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_id
 NEXT_PUBLIC_TRACKER_CONTRACT_ADDRESS=0x...
 NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x...
 ```
+
 ### 3. 启动项目
 
 ```npm run dev```
