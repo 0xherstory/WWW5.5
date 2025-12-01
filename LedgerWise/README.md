@@ -90,25 +90,33 @@ flowchart TB
 
 ## ⚡ Quick Start
 ### 1. Install Dependencies
-
-npm install### 2. Set Up Environment Variables
-
-cp .env.example .env.localEdit `.env.local`:
-
+```bash
+npm install
+```
+### 2. Set Up Environment Variables
+```bash
+cp .env.example .env.local
+```
+Edit `.env.local`:
+```env
 QWEN_API_KEY=your_qwen_api_key
 CLAUDE_API_KEY=your_claude_api_key   # optional fallback
 PINATA_JWT=your_pinata_jwt_token
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 NEXT_PUBLIC_TRACKER_CONTRACT_ADDRESS=0xYourExpenseTrackerAddress
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0xYourFirstExpenseNFTAddress### 3. Deploy Smart Contracts (Sepolia Testnet)
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0xYourFirstExpenseNFTAddress
+```
+### 3. Deploy Smart Contracts (Sepolia Testnet)
 
 1. Use Remix to deploy `contracts/ExpenseTracker.sol`, copy the address to `NEXT_PUBLIC_TRACKER_CONTRACT_ADDRESS`.
 2. (Optional) Deploy `contracts/FirstExpenseNFT_V3_Standard.sol`, copy the address to `NEXT_PUBLIC_NFT_CONTRACT_ADDRESS`.
 3. Ensure your wallet has Sepolia test ETH.
 
 ### 4. Run Locally
-
-npm run devOpen `http://localhost:3000` in your browser, connect your wallet, and start adding expenses via AI input, OCR, or file import.
+```bash
+npm run dev
+```
+Open `http://localhost:3000` in your browser, connect your wallet, and start adding expenses via AI input, OCR, or file import.
 
 ## 📄 License
 
