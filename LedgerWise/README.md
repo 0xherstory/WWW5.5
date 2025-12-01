@@ -59,24 +59,24 @@ A next-generation **AI-powered Web3 expense tracker** built with **Next.js + IPF
 - **Charts**: Chart.js and Recharts with area, flow, and progress visualizations.
 
 ## 🧠 System Architecture
-maid
+```mermaid
 flowchart TB
   subgraph FE["Frontend Layer (Next.js Client)"]
-    FE1[AI Input Hub\nNLP Parsing\nOCR / PDF Extraction]
-    FE2[Dashboard UI\nBudgets\nInsights\nSavings]
-    FE3[WalletConnect / RainbowKit]
+    FE1["AI Input Hub\nNLP Parsing\nOCR / PDF Extraction"]
+    FE2["Dashboard UI\nBudgets\nInsights\nSavings"]
+    FE3["WalletConnect / RainbowKit"]
   end
 
   subgraph BE["Backend Layer (Next.js API Routes)"]
-    BE1[AI Parsing\nQwen and Claude Fallback]
-    BE2[OCR and PDF Extractor]
-    BE3[AES Encryption Module]
-    BE4[IPFS Upload Service (Pinata)]
+    BE1["AI Parsing\nQwen and Claude Fallback"]
+    BE2["OCR and PDF Extractor"]
+    BE3["AES Encryption Module"]
+    BE4["IPFS Upload Service (Pinata)"]
   end
 
   subgraph BC["Web3 Layer"]
-    BC1[ExpenseTracker Contract\nStores IPFS CIDs]
-    BC2[FirstExpenseNFT Contract\nMilestone NFT]
+    BC1["ExpenseTracker Contract\nStores IPFS CIDs"]
+    BC2["FirstExpenseNFT Contract\nMilestone NFT"]
   end
 
   FE1 --> BE1
@@ -85,8 +85,10 @@ flowchart TB
   BE3 --> BE4
   BE4 --> BC1
   FE3 --> BC1
-  FE3 --> BC2## ⚡ Quick Start
+  FE3 --> BC2
+```
 
+## ⚡ Quick Start
 ### 1. Install Dependencies
 
 npm install### 2. Set Up Environment Variables
