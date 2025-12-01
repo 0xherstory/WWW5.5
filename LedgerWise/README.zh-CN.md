@@ -1,82 +1,144 @@
-English | [简体中文](README.zh-CN.md)
 
-# LedgerWise – AI Web3 Expense Tracker
+---
 
-A next-generation **AI-powered Web3 expense tracker** built with **Next.js + IPFS + Ethereum**. Own every byte of your financial data, automate bookkeeping with AI, and recover everything from any device through decentralized storage.
+### 中文版：`README.zh-CN.md`
 
-## Why Web3 Accounting? (vs Web2)
+[English](README.md) | 简体中文
 
-| Web2 Finance Apps | LedgerWise (Web3) |
-| --- | --- |
-| Centralized servers store financial history | You own all data (wallet signature = encryption key) |
-| Vendor can delete/lose/monetize your data | IPFS + Ethereum make data permanent and verifiable |
-| Account recovery relies on email/password | On-chain index + wallet login → instant auto-restore |
-| Limited portability | History is portable, censorship-resistant, reusable across Web3 |
+# LedgerWise｜AI × Web3 去中心化记账应用
 
-## ✨ Core Features
+一个基于 **Next.js + IPFS + 以太坊** 的 AI Web3 记账工具。  
+支持自然语言记账、OCR 扫描、PDF 导入、预算与储蓄管理，并通过链上索引实现 **跨设备自动恢复** 与 **真正的数据所有权**。
 
-### 🤖 AI Inputs
+---
 
-- Natural language → structured transactions (supports colloquial Chinese such as “今天吃饭30块”).
-- OCR for receipts (JPG/PNG/GIF) and PDF parsing to capture amount, merchant, date, and items.
-- Multi-file batch import with preview and inline edits.
-- AI assistant delivers financial insights and recommendations, with Qwen → Claude fallback for reliability.
+## 🌐 为什么要用 Web3 来记账？
 
-### 🗄️ Decentralized Storage & Security
+### 传统 Web2 记账应用的问题
 
-- Wallet signature derives AES keys; data is encrypted client-side before being uploaded to Pinata IPFS.
-- CIDs are recorded on Ethereum Sepolia via `ExpenseTracker.sol`, enabling verifiable and auditable history.
-- Local cache plus backup/restore modules with validation for reproducible engineering.
+- 数据被中心化服务器托管，平台可随时更改、删除甚至商业化利用用户数据  
+- 恢复依赖手机号 / 邮箱，账号安全受平台控制  
+- 数据无法跨应用复用，缺乏透明度与可验证性  
 
-### ⛓️ On-Chain Index & Auto-Restore
+### 在 LedgerWise（Web3）中
 
-- Every transaction CID is committed on-chain to guarantee cross-device sync.
-- Any new device only needs wallet connection to pull, decrypt, and rebuild the ledger.
-- Hooks such as `useExpenseTracker.ts` encapsulate blockchain reads/writes for easy extension.
+- 你拥有数据主权：所有数据本地加密，使用 **钱包签名** 作为加密密钥  
+- 永不丢失：数据上传到 **IPFS（Pinata）** 去中心化存储  
+- 可验证、不可篡改：每条账单的 IPFS CID 上链（**Ethereum Sepolia**）  
+- 跨设备自动恢复：连接同一个钱包即可自动找回全部历史记录  
+- 匿名 & 隐私友好：无需手机号 / 邮箱 / 密码，无中心化账号体系  
 
-### 📊 Dashboard & Analytics
+**LedgerWise 的核心价值：让个人财务数据真正回到用户自己手中。**
 
-- Today’s ledger, monthly stats, top categories, smart budgeting, and savings goals in a single dashboard.
-- Chart.js and Recharts power area charts, Sankey-style flows, and progress indicators in real time.
-- Financial Health Score and Insights APIs quantify personal finance wellness.
+---
 
-### 🏆 NFT Milestones
+## ✨ 主要功能（Key Features）
 
-- First transaction automatically mints a “First Expense NFT” via `FirstExpenseNFT_V3_Standard.sol`.
-- Metadata is stored on IPFS; ownership is verifiable on-chain for gamified onboarding.
+### 🤖 AI 智能输入
 
-### 🔄 Auto-Restore & Data Operations
+- 自然语言识别：输入「昨天喝奶茶 18 元」「工资 5000」即可自动解析为结构化账单  
+- OCR 图片识别：上传小票照片，自动提取金额、日期、商户、分类等信息  
+- PDF 导入：从 PDF 账单中批量提取交易记录  
+- 多模型策略：默认使用 **Qwen**，失败或未配置时自动回退到 **Claude API**  
+- AI 财务助手：可以直接询问消费结构、趋势分析、储蓄建议、财务健康等问题  
 
-- Export to CSV, full backup/restore pipelines, and CID history tracking.
-- Import supports CSV/Excel/images/PDF with validation, clear error messages, and retry flows.
+---
 
-## 🧱 Tech Stack
+### 📥 批量导入 / 导出
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind, custom UI components.
-- **Web3**: RainbowKit, Wagmi, Viem, Solidity contracts (Sepolia).
-- **AI**: Qwen (text + vision) as primary, Claude as fallback; pdf-parse, papaparse, xlsx utilities.
-- **Storage & Infra**: Pinata IPFS, CryptoJS AES encryption, LocalStorage, multi-format file parsers.
-- **Charts**: Chart.js and Recharts with area, flow, and progress visualizations.
+- 导入 **CSV / Excel** 账单文件  
+- 多张消费图片批量上传并 OCR 解析  
+- 多个 PDF 批量解析为交易记录  
+- 导入前提供 **预览与手动修正**，保证数据准确  
+- 一键 **导出为 CSV**，方便在其他工具中继续分析或备份  
 
-## 🧠 System Architecture
+---
+
+### 💰 财务管理能力
+
+- 收入 / 支出管理：支持多种分类，自动归类常见消费类型  
+- 月度预算：为不同分类设置预算并展示实时进度条  
+- 储蓄目标：创建多个储蓄目标并查看完成进度  
+- 财务健康评分：AI 基于消费结构、储蓄率等维度给出评分与建议  
+- 分类统计：支持租房、餐饮、购物、交通、娱乐、投资、工资、转账等  
+
+---
+
+### 📊 可视化分析
+
+- 月度消费趋势图  
+- Sankey 预算流向图  
+- 储蓄进度图  
+- 今日交易面板  
+- 最大支出类别分析  
+
+---
+
+### 🔐 Web3 & 安全机制
+
+- AES 加密：所有账单数据在浏览器本地加密后再上传  
+- IPFS 去中心化存储：使用 **Pinata** 作为网关与存储服务  
+- 链上索引：每次数据更新的 IPFS CID 存储在 Ethereum Sepolia 合约中  
+- 跨设备自动恢复：更换设备后连接钱包即可恢复所有历史数据  
+- 钱包连接：基于 **RainbowKit + Wagmi + MetaMask** 等主流钱包  
+- 隐私友好：无手机号 / 邮箱 / 密码，无中心化账号体系  
+
+---
+
+### 🏆 Web3 拓展能力
+
+- NFT 里程碑：首次记账自动获得 “First Expense NFT”  
+- 合约透明化：所有历史数据对应的 CID 可在链上公开查询与验证  
+- 数据可组合性：未来可被其他 Web3 财务应用或 DeFi 工具复用  
+
+---
+
+## 🛠️ 技术栈（Tech Stack）
+
+### 前端（Frontend）
+
+- Next.js 14（App Router）  
+- TypeScript  
+- Tailwind CSS  
+- Recharts / Chart.js 可视化组件  
+
+### Web3
+
+- RainbowKit、Wagmi、Viem  
+- Ethereum Sepolia 测试网  
+- Solidity 智能合约：`ExpenseTracker.sol`、`FirstExpenseNFT_V3_Standard.sol`  
+
+### AI
+
+- Qwen（通义千问）作为主模型  
+- Claude 作为自动回退模型  
+
+### 存储与加密
+
+- IPFS（Pinata）  
+- AES 对称加密（基于钱包签名生成密钥）  
+
+---
+
+## 🔧 系统架构图（Mermaid）
 ```mermaid
 flowchart TB
-  subgraph FE["Frontend Layer (Next.js Client)"]
-    FE1["AI Input Hub\nNLP Parsing\nOCR / PDF Extraction"]
-    FE2["Dashboard UI\nBudgets\nInsights\nSavings"]
-    FE3["WalletConnect / RainbowKit"]
+  subgraph FE["前端层 (Next.js 客户端)"]
+    FE1["AI 输入中心\nNLP 自然语言解析\nOCR / PDF 提取"]
+    FE2["仪表板 UI\n预算\n洞察\n储蓄目标"]
+    FE3["钱包连接 / RainbowKit"]
   end
 
-  subgraph BE["Backend Layer (Next.js API Routes)"]
-    BE1["AI Parsing\nQwen and Claude Fallback"]
-    BE2["OCR and PDF Extractor"]
-    BE3["AES Encryption Module"]
-    BE4["IPFS Upload Service (Pinata)"]
+  subgraph BE["后端层 (Next.js API 路由)"]
+    BE1["AI 解析\n通义千问 (Qwen) 与 Claude 备份"]
+    BE2["OCR 和 PDF 提取器"]
+    BE3["AES 加密模块"]
+    BE4["IPFS 上传服务 (Pinata)"]
   end
 
-  subgraph BC["Web3 Layer"]
-    BC1["ExpenseTracker Contract\nStores IPFS CIDs"]
-    BC2["FirstExpenseNFT Contract\nMilestone NFT"]
+  subgraph BC["Web3 区块链层"]
+    BC1["ExpenseTracker 合约\n存储 IPFS CIDs"]
+    BC2["FirstExpenseNFT 合约\n里程碑 NFT"]
   end
 
   FE1 --> BE1
@@ -87,29 +149,10 @@ flowchart TB
   FE3 --> BC1
   FE3 --> BC2
 ```
+---
 
-## ⚡ Quick Start
-### 1. Install Dependencies
+## ⚡ 快速开始（Quick Start）
 
-npm install### 2. Set Up Environment Variables
+### 1. 安装依赖
 
-cp .env.example .env.localEdit `.env.local`:
-
-QWEN_API_KEY=your_qwen_api_key
-CLAUDE_API_KEY=your_claude_api_key   # optional fallback
-PINATA_JWT=your_pinata_jwt_token
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
-NEXT_PUBLIC_TRACKER_CONTRACT_ADDRESS=0xYourExpenseTrackerAddress
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0xYourFirstExpenseNFTAddress### 3. Deploy Smart Contracts (Sepolia Testnet)
-
-1. Use Remix to deploy `contracts/ExpenseTracker.sol`, copy the address to `NEXT_PUBLIC_TRACKER_CONTRACT_ADDRESS`.
-2. (Optional) Deploy `contracts/FirstExpenseNFT_V3_Standard.sol`, copy the address to `NEXT_PUBLIC_NFT_CONTRACT_ADDRESS`.
-3. Ensure your wallet has Sepolia test ETH.
-
-### 4. Run Locally
-
-npm run devOpen `http://localhost:3000` in your browser, connect your wallet, and start adding expenses via AI input, OCR, or file import.
-
-## 📄 License
-
-MIT
+npm install
