@@ -62,21 +62,21 @@ A next-generation **AI-powered Web3 expense tracker** built with **Next.js + IPF
 ```mermaid
 flowchart TB
   subgraph FE["Frontend Layer (Next.js Client)"]
-    FE1[AI Input Hub\nNLP Parsing\nOCR / PDF Extraction]
-    FE2[Dashboard UI\nBudgets\nInsights\nSavings]
-    FE3[WalletConnect / RainbowKit]
+    FE1["AI Input Hub\nNLP Parsing\nOCR / PDF Extraction"]
+    FE2["Dashboard UI\nBudgets\nInsights\nSavings"]
+    FE3["WalletConnect / RainbowKit"]
   end
 
   subgraph BE["Backend Layer (Next.js API Routes)"]
-    BE1[AI Parsing\nQwen and Claude Fallback]
-    BE2[OCR and PDF Extractor]
-    BE3[AES Encryption Module]
-    BE4[IPFS Upload Service (Pinata)]
+    BE1["AI Parsing\nQwen and Claude Fallback"]
+    BE2["OCR and PDF Extractor"]
+    BE3["AES Encryption Module"]
+    BE4["IPFS Upload Service (Pinata)"]
   end
 
   subgraph BC["Web3 Layer"]
-    BC1[ExpenseTracker Contract\nStores IPFS CIDs]
-    BC2[FirstExpenseNFT Contract\nMilestone NFT]
+    BC1["ExpenseTracker Contract\nStores IPFS CIDs"]
+    BC2["FirstExpenseNFT Contract\nMilestone NFT"]
   end
 
   FE1 --> BE1
