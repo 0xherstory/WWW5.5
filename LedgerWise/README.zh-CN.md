@@ -151,41 +151,30 @@ flowchart TB
 ```
 
 ---
-⚡ Quick Start
-
-1. Install Dependencies
-Bash
-
+### 1. 安装依赖
+```bash
 npm install
-2. Set Up Environment Variables
-Bash
+```
+### 2. 配置环境变量
 
-cp .env.example .env.local
-Edit .env.local:
+```bash
+cp .env.example .env.local```
 
-Code snippet
+在 `.env.local` 中添加：
+```env
+QWEN_API_KEY=your_key
+CLAUDE_API_KEY=your_key             # 可选，作为回退模型
+PINATA_JWT=your_pinata_token
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_id
+NEXT_PUBLIC_TRACKER_CONTRACT_ADDRESS=0x...
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x...
+```
+### 3. 启动项目
 
-QWEN_API_KEY=your_qwen_api_key
-CLAUDE_API_KEY=your_claude_api_key   # optional fallback
-PINATA_JWT=your_pinata_jwt_token
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
-NEXT_PUBLIC_TRACKER_CONTRACT_ADDRESS=0xYourExpenseTrackerAddress
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0xYourFirstExpenseNFTAddress
-3. Deploy Smart Contracts (Sepolia Testnet)
-Use Remix to deploy contracts/ExpenseTracker.sol, copy the address to NEXT_PUBLIC_TRACKER_CONTRACT_ADDRESS.
+```npm run dev```
+访问：`http://localhost:3000`，连接钱包即可体验自然语言记账、OCR 导入、预算与储蓄等功能。
 
-(Optional) Deploy contracts/FirstExpenseNFT_V3_Standard.sol, copy the address to NEXT_PUBLIC_NFT_CONTRACT_ADDRESS.
-
-Ensure your wallet has Sepolia test ETH.
-
-4. Run Locally
-Bash
-
-npm run dev
-Open http://localhost:3000 in your browser, connect your wallet, and start adding expenses via AI input, OCR, or file import.
-
-📄 License
-MIT
+---
 
 ## 📄 License
 
