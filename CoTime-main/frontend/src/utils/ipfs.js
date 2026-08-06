@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const PINATA_API_KEY = "fbe13b5c7369c92b693b"; // 替换为你的Pinata API Key
-const PINATA_SECRET_KEY = "16e50b32849d8877cdc54e8776748c50ec4e7fe4ce8ebce71b63aa95ab417c58";
+const PINATA_SECRET_KEY = "xxx";
 
 // 上传文件到IPFS
 export const uploadToPinata = async (file) => {
